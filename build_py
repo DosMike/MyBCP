@@ -1,4 +1,4 @@
-# This file is part of CPP GO WIN
+# This file is part of MyBCP
 # There's no .py extension to prevent running this script directly on accident, outside a venv
 
 import sys, os, subprocess, shutil, winreg, itertools, re, argparse
@@ -296,6 +296,7 @@ def build(where, build_type, cmake_args):
 
 def update():
     # update wihtout installing git
+    print("Updating MyBCP to latest")
     # make temp dir
     tmpdir = Path('mybcp').absolute()
     if not tmpdir.exists():
@@ -310,10 +311,11 @@ def update():
     for path, dirs, files in os.walk(tmpdir / 'MyBCP-master'):
         for file in files:
             if file.startswith('build'):
-                shutil.copyfile((path / file), '.')
+                shutil.copyfile(Path(path, file), Path(file))
         break
     # clean up
     shutil.rmtree(tmpdir)
+    print("success")
     exit(0)
 
 
@@ -363,7 +365,7 @@ if '__main__' == __name__:
     # normalize run path (cwd to script path)
     os.chdir(Path(__file__).absolute().parent)
     # setup args
-    ap = argparse.ArgumentParser(prog='CppGoWin', description='Cpp tool wrapper and loader for Windows', epilog='git url goes here', prefix_chars='-/')
+    ap = argparse.ArgumentParser(prog='MyBCP', description='Cpp tool wrapper and loader for Windows', epilog='git url goes here', prefix_chars='-/')
     ap.add_argument('--rebuild', action="store_true", dest="rebuild", help="Delete build directory and build clean")
     ap.add_argument('--cmake-args', action="extend", nargs="+", type=str, dest="cmake_args", default=[], help="Arguments to pass to cmake. These are appended at the end.")
     ap.add_argument('--vs-dir', type=Path, dest="compiler_path", help="Path to visual studio installation. If not specified, it is detected automatically")

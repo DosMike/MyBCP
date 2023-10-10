@@ -1,5 +1,5 @@
 @echo off
-rem This script is part of CPP GO WIN
+rem This script is part of MyBCP
 rem Purpose of this script is to ensure python is installed, so we can elevate into a more sane language.
 rem Also, we install conan/cmake through python, because that's way easier than doing all this weird dancing around, like we do for python.
 
