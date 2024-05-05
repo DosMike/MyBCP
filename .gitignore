@@ -1,0 +1,5 @@
+# MyBCP
+venv_build/**
+venv/**
+build/**
+mybcp/**
