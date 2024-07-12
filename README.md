@@ -35,6 +35,8 @@ options:
                         Debug build type might enable debug symbols and other
                         features
   --update              Update MyBCP from GitHub
+  --install             Install the package into the local conan cache
+                        (requires a conanfile.py)
 ```
 
 ## Rant
