@@ -233,6 +233,7 @@ compiler=msvc
 compiler.cppstd=23
 compiler.version={compver}
 compiler.runtime=dynamic
+compiler.libcxx=libstdc++
 os=Windows
 
 [conf]
