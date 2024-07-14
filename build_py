@@ -233,7 +233,6 @@ compiler=msvc
 compiler.cppstd=23
 compiler.version={compver}
 compiler.runtime=dynamic
-compiler.libcxx=libstdc++
 os=Windows
 
 [conf]
@@ -261,6 +260,7 @@ build_type=Release
 compiler=gcc
 compiler.cppstd=gnu23
 compiler.version={compver}
+compiler.libcxx=libstdc++
 os=Linux
 """)
         
@@ -325,8 +325,6 @@ def build_run(*cmd, sub=None):
 
 def build(plat, where, build_type, cmake_args, install):
     try:
-        # tool chain file requires full path for .py configurations over filename for .txt conanfiles
-        tc_file = Path('build') / build_type / 'generators' / 'conan_toolchain.cmake'
         if install:
             build_run("conan", "create", ".", "-s", "build_type="+build_type)
         elif plat == 'windows':
@@ -334,11 +332,19 @@ def build(plat, where, build_type, cmake_args, install):
             if generator is None:
                 return False
 
-            build_run("conan", "install", ".", "--profile", ".\\conanprofile.txt", f"--output-folder", str(where), "--build", "missing")
+            build_run("conan", "install", ".", "--profile", ".\\conanprofile.txt", "-s", "build_type="+build_type, "--output-folder", str(where), "--build", "missing")
+            # tool chain file requires full path for .py configurations over filename for .txt conanfiles
+            tc_file = 'conan_toolchain.cmake'
+            if not (where / tc_file).is_file():
+                tc_file = Path('build') / build_type / 'generators' / 'conan_toolchain.cmake'
             build_run("cmake", "..", "-G", generator, "-DCMAKE_TOOLCHAIN_FILE="+str(tc_file), *cmake_args, sub=where)
             build_run("cmake", "--build", ".", "--config", build_type, sub=where)
         else:
-            build_run("conan", "install", ".", "--profile", "./conanprofile.txt", f"--output-folder", str(where), "--build", "missing")
+            build_run("conan", "install", ".", "--profile", "./conanprofile.txt", "-s", "build_type="+build_type, "--output-folder", str(where), "--build", "missing")
+            # tool chain file requires full path for .py configurations over filename for .txt conanfiles
+            tc_file = 'conan_toolchain.cmake'
+            if not (where / tc_file).is_file():
+                tc_file = Path('build') / build_type / 'generators' / 'conan_toolchain.cmake'
             build_run("cmake", "..", "-DCMAKE_TOOLCHAIN_FILE="+str(tc_file), "-DCMAKE_BUILD_TYPE="+build_type, *cmake_args, sub=where)
             build_run("cmake", "--build", ".", sub=where)
         return True
