@@ -318,6 +318,7 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
 
 def build_run(*cmd, sub=None):
+    print('> Running :',' '.join(cmd))
     flush()
     subprocess.check_call(cmd, encoding="utf-8", env=os.environ, cwd=sub)
     flush()
@@ -347,20 +348,23 @@ def build(plat, where, build_type, cmake_args, install):
         if install:
             build_run("conan", "create", ".", "-s", "build_type="+build_type)
         elif plat == 'windows':
-            tc_file = find_toolchain_file_relative(where, build_type)
             generator = cmake_generator_name_for_vs_version()
             if generator is None:
                 return False
 
-            build_run("conan", "install", ".", "--profile", ".\\conanprofile.txt", f"--output-folder", str(where), "--build", "missing")
+            build_run("conan", "install", ".", "--profile", ".\\conanprofile.txt", f"--output-folder", path_escape_spaces(where, plat), "-s", "build_type="+build_type, "--build", "missing")
+            tc_file = find_toolchain_file_relative(where, build_type)
             build_run("cmake", "..", "-G", generator, "-DCMAKE_TOOLCHAIN_FILE="+path_escape_spaces(tc_file, plat), *cmake_args, sub=where)
             build_run("cmake", "--build", ".", "--config", build_type, sub=where)
         else:
+            build_run("conan", "install", ".", "--profile", "./conanprofile.txt", f"--output-folder", path_escape_spaces(where, plat), "-s", "build_type="+build_type, "--build", "missing")
             tc_file = find_toolchain_file_relative(where, build_type)
-            build_run("conan", "install", ".", "--profile", "./conanprofile.txt", f"--output-folder", str(where), "--build", "missing")
             build_run("cmake", "..", "-DCMAKE_TOOLCHAIN_FILE="+path_escape_spaces(tc_file, plat), "-DCMAKE_BUILD_TYPE="+build_type, *cmake_args, sub=where)
             build_run("cmake", "--build", ".", sub=where)
         return True
+    except FileNotFoundError as e:
+        print(e)
+        return False
     except:
         return False
 
